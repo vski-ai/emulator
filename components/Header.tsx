@@ -16,9 +16,9 @@ export function Header() {
           <Database className="w-7 h-7 text-primary" strokeWidth={3} />
           VSKI <span className="font-light text-base-content/40 not-italic">WORKFLOWS</span>
         </a>
-        
+
         <div className="flex items-center gap-1 border-l border-base-content/10 pl-4 ml-2">
-          <button 
+          <button
             className="btn btn-ghost btn-sm gap-2 font-black text-[10px] tracking-tighter opacity-60 hover:opacity-100 uppercase"
             onClick={startTour}
           >
@@ -26,16 +26,16 @@ export function Header() {
             Tour
           </button>
 
-          <button 
+          <button
             className="btn btn-ghost btn-xs btn-circle opacity-50 hover:opacity-100"
             onClick={() => setShowAbout(true)}
           >
             <HelpCircle className="w-4 h-4" />
           </button>
-          
-          <a 
-            href="https://github.com/nesterow/rocketbase" 
-            target="_blank" 
+
+          <a
+            href="https://github.com/vski-ai/emulator/"
+            target="_blank"
             className="btn btn-ghost btn-xs btn-circle opacity-50 hover:opacity-100"
           >
             <Github className="w-4 h-4" />
@@ -45,14 +45,14 @@ export function Header() {
 
       <div className="flex-none flex items-center gap-4">
         <div className="flex bg-base-200 p-1 rounded-lg border border-base-content/5">
-          <button 
+          <button
             className={`btn btn-xs rounded-md ${mode === 'emulator' ? 'btn-primary shadow-lg shadow-primary/20' : 'btn-ghost'}`}
             onClick={() => setMode('emulator')}
           >
             <Settings className="w-3 h-3 mr-1" />
             EMULATOR
           </button>
-          <button 
+          <button
             className={`btn btn-xs rounded-md ${mode === 'url' ? 'btn-primary shadow-lg shadow-primary/20' : 'btn-ghost'}`}
             onClick={() => setMode('url')}
           >
@@ -94,10 +94,10 @@ export function Header() {
 
             <div className="space-y-4 text-sm leading-relaxed overflow-y-auto max-h-[60vh] pr-2">
               <p>
-                <span className="text-primary font-bold">Durable Execution</span> is a programming paradigm that allows you to write 
+                <span className="text-primary font-bold">Durable Execution</span> is a programming paradigm that allows you to write
                 code that is guaranteed to run to completion, regardless of infrastructure failures, network timeouts, or human response times.
               </p>
-              
+
               <div className="bg-base-200 p-4 rounded-xl space-y-2 border border-base-content/5">
                 <h4 className="font-black uppercase text-xs tracking-wider flex items-center gap-2">
                   <Database className="w-3 h-3" /> Key Benefits
@@ -111,14 +111,14 @@ export function Header() {
               </div>
 
               <p>
-                This application is a demonstration of the <span className="font-bold">VSKI Platform</span>. 
-                VSKI is designed to provide powerful backend primitives (like these workflows) 
+                This application is a demonstration of the <span className="font-bold">VSKI Platform</span>.
+                VSKI is designed to provide powerful backend primitives (like these workflows)
                 in a self-hosted, private-first package.
               </p>
 
               <p className="p-4 bg-primary/5 rounded-xl border border-primary/10 italic text-xs">
-                In this demo, you are using the <span className="font-bold">VSKI Workflow Emulator</span>. 
-                It replicates the entire server-side engine logic directly in your browser using 
+                In this demo, you are using the <span className="font-bold">VSKI Workflow Emulator</span>.
+                It replicates the entire server-side engine logic directly in your browser using
                 Fetch/WebSocket interception and in-memory event sourcing.
               </p>
             </div>
