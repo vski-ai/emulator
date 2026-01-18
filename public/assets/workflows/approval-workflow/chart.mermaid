@@ -1,0 +1,7 @@
+graph TD
+  Start((Start)) --> Step1[Log Request]
+  Step1 --> Wait[Wait for Manager Signal]
+  Wait --> Decision{Approved?}
+  Decision -- Yes --> Step2[Log Payment]
+  Step2 --> End((End))
+  Decision -- No --> End

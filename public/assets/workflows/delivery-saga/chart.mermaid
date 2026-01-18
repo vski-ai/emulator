@@ -1,0 +1,19 @@
+graph TD
+  Start((Start)) --> Comp[Phase: Complectation]
+  Comp --> Parallel{Parallel Pick}
+  Parallel --> WHA[WH Manager A]
+  Parallel --> WHB[WH Manager B]
+  WHA --> Review[Delivery Manager Review]
+  WHB --> Review
+  Review -- Approved --> Deliv[Phase: Delivery]
+  Review -- Reject A --> Comp
+  Review -- Reject B --> Comp
+  Deliv --> Driver[Driver Pickup]
+  Driver --> Attempt{Delivery Attempt}
+  Attempt -- Fail --> Sleep[Sleep 2s]
+  Sleep --> Driver
+  Attempt -- Success --> Client{Client Decision}
+  Client -- Accept --> End((End: Completed))
+  Client -- Reject --> Res[Manager Resolution]
+  Res -- Refund --> EndR((End: Refunded))
+  Res -- Fix --> Comp

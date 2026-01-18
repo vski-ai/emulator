@@ -1,0 +1,6 @@
+graph TD
+  Start((Start)) --> Email[Send Welcome Email]
+  Email --> Wait[Wait for Email Verification]
+  Wait --> Setup[Set up Profile]
+  Setup --> Sleep[Sleep 2s]
+  Sleep --> End((End))

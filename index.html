@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VSKI | Durable Workflows Terminal</title>
+    
+    <!-- Meta Tags -->
+    <meta name="description" content="Explore VSKI Durable Workflows. Infrastructure in your pocket. Run complex state machines directly in the browser with our high-performance emulator." />
+    <meta name="keywords" content="VSKI, workflows, durable execution, serverless, state machines, developer tools" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="VSKI | Durable Workflows Terminal" />
+    <meta property="og:description" content="Durable execution logic for the modern web. Infrastructure in your pocket." />
+    <meta property="og:image" content="/assets/og-image.png" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:title" content="VSKI | Durable Workflows Terminal" />
+    <meta property="twitter:description" content="Durable execution logic for the modern web. Infrastructure in your pocket." />
+
+    <!-- Favicon Generator -->
+    <script>
+      (function() {
+        const canvas = document.createElement('canvas');
+        canvas.width = 32;
+        canvas.height = 32;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#570df8'; // Primary color
+        ctx.beginPath();
+        ctx.roundRect(0, 0, 32, 32, 8);
+        ctx.fill();
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 20px monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('V', 16, 16);
+        
+        const link = document.createElement('link');
+        link.rel = 'icon';
+        link.href = canvas.toDataURL();
+        document.head.appendChild(link);
+      })();
+    </script>
+  </head>
+  <body class="bg-base-200">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
