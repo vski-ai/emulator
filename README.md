@@ -6,4 +6,3 @@ complex distributed system patterns, human-in-the-loop approvals, and
 fault-tolerant logic with zero infrastructure requirements.
 
 The live demo is at: [https://emulator.vski.ai](https://emulator.vski.ai)
-

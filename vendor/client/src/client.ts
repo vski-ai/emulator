@@ -6,6 +6,7 @@ import type { RealtimeEvent, SubscriptionOptions } from "./types.ts";
 export class RocketBaseClient {
   public baseUrl: string;
   private token: string | null = null;
+  private apiKey: string | null = null;
   public dbName: string = "postgres"; // Changed to public for Worker access
   private adminDbName: string = "postgres";
   private realtimeSocket: WebSocket | null = null;
@@ -21,6 +22,7 @@ export class RocketBaseClient {
     this.baseUrl = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
     if (typeof window !== "undefined") {
       this.token = localStorage.getItem("pb_auth_token");
+      this.apiKey = localStorage.getItem("rb_api_key");
     }
   }
 
@@ -39,6 +41,17 @@ export class RocketBaseClient {
     }
     if (this.realtimeSocket) {
       this.realtimeSocket.close();
+    }
+  }
+
+  setApiKey(key: string | null) {
+    this.apiKey = key;
+    if (typeof window !== "undefined") {
+      if (key) {
+        localStorage.setItem("rb_api_key", key);
+      } else {
+        localStorage.removeItem("rb_api_key");
+      }
     }
   }
 
@@ -70,6 +83,7 @@ export class RocketBaseClient {
       "x-dbname": this.dbName,
     };
     if (this.token) h["Authorization"] = `Bearer ${this.token}`;
+    if (this.apiKey) h["X-API-Key"] = this.apiKey;
     return h;
   }
 
@@ -79,6 +93,7 @@ export class RocketBaseClient {
       "x-dbname": this.adminDbName,
     };
     if (this.token) h["Authorization"] = `Bearer ${this.token}`;
+    if (this.apiKey) h["X-API-Key"] = this.apiKey;
     return h;
   }
 
@@ -706,6 +721,16 @@ export class RocketBaseClient {
           runId: run.runId,
           workflowName,
           input,
+        });
+        return run;
+      },
+      resume: async (runId: string) => {
+        const run = await self.workflow.getRun(runId);
+        await self.workflow.queueMessage(`__wkf_workflow_${run.workflowName}`, {
+          type: "resume",
+          runId: run.runId,
+          workflowName: run.workflowName,
+          input: run.input,
         });
         return run;
       },

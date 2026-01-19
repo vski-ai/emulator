@@ -6,6 +6,7 @@ import { EmulatorFetchInterceptor } from "./fetch-interceptor.ts";
 import {
   EmulatorWebSocketServer,
   installWebSocketEmulator,
+  uninstallWebSocketEmulator,
 } from "./ws-emulator.ts";
 
 export function installEmulator() {
@@ -25,6 +26,8 @@ export function installEmulator() {
   return {
     service,
     stop: () => {
+      fetchInterceptor.uninstall();
+      uninstallWebSocketEmulator();
       wsServer.stop();
       clearInterval(interval);
     },

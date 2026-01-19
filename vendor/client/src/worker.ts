@@ -12,14 +12,42 @@ export class WorkflowWorker {
 
   constructor(private client: RocketBaseClient) {}
 
-  async start(workflowName: string, concurrency: number = 1): Promise<void> {
+  async start(
+    workflowName: string,
+    options: { concurrency?: number; resume?: boolean } = {},
+  ): Promise<void> {
     this.active = true;
     this.workflowName = workflowName;
     this.connect(workflowName);
 
+    if (options.resume) {
+      this.resumePending(workflowName).catch((e) =>
+        console.error(`[Worker ${workflowName}] Resume failed:`, e)
+      );
+    }
+
     return new Promise((resolve) => {
       this.stopCallback = resolve;
     });
+  }
+
+  private async resumePending(workflowName: string) {
+    // Fetch runs that are not completed/failed
+    const pending = await this.client.workflow.listRuns({
+      workflowName,
+      status: "pending",
+    });
+    const running = await this.client.workflow.listRuns({
+      workflowName,
+      status: "running",
+    });
+
+    const all = [...pending.data, ...running.data];
+    console.log(`[Worker ${workflowName}] Resuming ${all.length} runs`);
+
+    for (const run of all) {
+      await this.client.workflow.resume(run.runId);
+    }
   }
 
   stop() {

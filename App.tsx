@@ -1,9 +1,9 @@
 import React, { useEffect } from "react";
-import { SdkProvider, useSdk } from "./sdk-context.tsx";
-import { Header } from "./components/Header.tsx";
-import { WorkflowTester } from "./components/WorkflowTester.tsx";
+import { useSdk } from "@/sdk-context.tsx";
+import { Header } from "@/components/Header.tsx";
+import { WorkflowTester } from "@/components/WorkflowTester.tsx";
 import { Link, Route, Switch, useRoute } from "wouter";
-import { WORKFLOW_DEMOS } from "./workflow-config.ts";
+import { WORKFLOW_DEMOS } from "@/workflow-config.ts";
 import {
   ArrowLeft,
   ChevronRight,
@@ -16,9 +16,9 @@ import {
 } from "lucide-react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { Mermaid } from "./components/Mermaid.tsx";
+import { Mermaid } from "@/components/Mermaid.tsx";
 import * as Icons from "lucide-react";
-import { WorkflowEvent } from "./components/WorkflowLogger.tsx";
+import { WorkflowEvent } from "@/components/WorkflowLogger.tsx";
 
 function Home() {
   const [selectedCategory, setSelectedCategory] = React.useState("All");
@@ -155,6 +155,16 @@ function WorkflowPage() {
     }
   }, [client, activeRunId]);
 
+  // Reset state and fetch immediately when activeRunId changes
+  useEffect(() => {
+    if (activeRunId) {
+      setStatus("idle");
+      setEvents([]);
+      setError(null);
+      fetchState();
+    }
+  }, [activeRunId, fetchState]);
+
   useEffect(() => {
     if (status === "completed" || status === "failed" || !activeRunId) return;
     const interval = setInterval(fetchState, 1000);
@@ -281,6 +291,7 @@ function WorkflowPage() {
         error={error}
         activeRunId={activeRunId}
         handleSignal={handleSignal}
+        setRunId={setRunId}
       />
 
       {/* Code Modal */}
@@ -400,24 +411,22 @@ function Footer() {
 
 export default function App() {
   return (
-    <SdkProvider>
-      <div className="min-h-screen bg-base-200 text-base-content pb-10">
-        <Header />
-        <main className="p-4 md:p-8 max-w-7xl mx-auto">
-          <Switch>
-            <Route path="/" component={Home} />
-            <Route path="/workflow/:id" component={WorkflowPage} />
-            <Route>
-              <div className="text-center py-20">
-                <h1 className="text-4xl font-bold">404</h1>
-                <p>Page not found</p>
-                <Link href="/" className="btn btn-primary mt-4">Go Home</Link>
-              </div>
-            </Route>
-          </Switch>
-          <Footer />
-        </main>
-      </div>
-    </SdkProvider>
+    <div className="min-h-screen bg-base-200 text-base-content pb-10">
+      <Header />
+      <main className="p-4 md:p-8 max-w-7xl mx-auto">
+        <Switch>
+          <Route path="/" component={Home} />
+          <Route path="/workflow/:id" component={WorkflowPage} />
+          <Route>
+            <div className="text-center py-20">
+              <h1 className="text-4xl font-bold">404</h1>
+              <p>Page not found</p>
+              <Link href="/" className="btn btn-primary mt-4">Go Home</Link>
+            </div>
+          </Route>
+        </Switch>
+        <Footer />
+      </main>
+    </div>
   );
 }

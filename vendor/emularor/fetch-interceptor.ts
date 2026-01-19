@@ -124,8 +124,10 @@ export class EmulatorFetchInterceptor {
     });
   }
 
+  private originalFetch: typeof globalThis.fetch | null = null;
+
   install() {
-    const originalFetch = globalThis.fetch;
+    this.originalFetch = globalThis.fetch;
     globalThis.fetch = async (
       input: string | URL | Request,
       init?: RequestInit,
@@ -133,7 +135,14 @@ export class EmulatorFetchInterceptor {
       const request = new Request(input, init);
       const response = await this.handleRequest(request);
       if (response) return response;
-      return originalFetch(input, init);
+      return this.originalFetch!(input, init);
     };
+  }
+
+  uninstall() {
+    if (this.originalFetch) {
+      globalThis.fetch = this.originalFetch;
+      this.originalFetch = null;
+    }
   }
 }

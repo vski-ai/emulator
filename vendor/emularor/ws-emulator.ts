@@ -120,9 +120,11 @@ export class EmulatorWebSocket extends EventTarget {
   }
 }
 
+let originalWS: any = null;
+
 export function installWebSocketEmulator(server: EmulatorWebSocketServer) {
   EmulatorWebSocket.setServer(server);
-  const originalWS = globalThis.WebSocket;
+  originalWS = globalThis.WebSocket;
 
   const patchedWS = function (this: any, url: string) {
     if (url.includes("/api/workflow/ws") || url.startsWith("ws://emulator")) {
@@ -132,5 +134,12 @@ export function installWebSocketEmulator(server: EmulatorWebSocketServer) {
   };
 
   patchedWS.prototype = originalWS.prototype;
-  (globalThis as any).WebSocket = patchedWS;
+  (globalThis as any).WebSocket = patchedWS as any;
+}
+
+export function uninstallWebSocketEmulator() {
+  if (originalWS) {
+    globalThis.WebSocket = originalWS;
+    originalWS = null;
+  }
 }

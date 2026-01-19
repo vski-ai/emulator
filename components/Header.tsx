@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { createPortal } from "react-dom";
-import { useSdk } from "../sdk-context.tsx";
-import { useTour } from "./TourProvider.tsx";
+import { useSdk } from "@/sdk-context.tsx";
+import { useTour } from "@/components/TourProvider.tsx";
+import { LoginModal } from "@/components/LoginModal.tsx";
 import {
   Cloud,
   Compass,
@@ -13,9 +14,10 @@ import {
 } from "lucide-react";
 
 export function Header() {
-  const { mode, setMode, apiUrl, setApiUrl, isReady } = useSdk();
+  const { mode, setMode, apiUrl, dbName, isReady } = useSdk();
   const { startTour } = useTour();
   const [showAbout, setShowAbout] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
 
   return (
     <header className="navbar bg-base-100 border-b border-base-content/10 px-4 sticky top-0 z-50 backdrop-blur-md bg-opacity-80">
@@ -76,7 +78,10 @@ export function Header() {
                 ? "btn-primary shadow-lg shadow-primary/20"
                 : "btn-ghost"
             }`}
-            onClick={() => setMode("url")}
+            onClick={() => {
+              setMode("url");
+              setShowLogin(true);
+            }}
           >
             <Cloud className="w-3 h-3 mr-1" />
             LIVE API
@@ -84,13 +89,28 @@ export function Header() {
         </div>
 
         {mode === "url" && (
-          <input
-            type="text"
-            placeholder="http://localhost:3001"
-            className="input input-bordered input-xs w-48 font-mono"
-            value={apiUrl}
-            onChange={(e) => setApiUrl(e.target.value)}
-          />
+          <div
+            className="flex items-center gap-2 px-3 py-1 bg-base-200 rounded-lg border border-base-content/5 cursor-pointer hover:border-primary/30 transition-colors"
+            onClick={() => setShowLogin(true)}
+          >
+            <div className="flex flex-col items-end">
+              <span className="text-[9px] font-mono leading-none opacity-40 uppercase font-black">
+                Gateway
+              </span>
+              <span className="text-[10px] font-mono leading-none font-bold">
+                {new URL(apiUrl).hostname}
+              </span>
+            </div>
+            <div className="w-px h-4 bg-base-content/10 mx-1" />
+            <div className="flex flex-col">
+              <span className="text-[9px] font-mono leading-none opacity-40 uppercase font-black">
+                DB
+              </span>
+              <span className="text-[10px] font-mono leading-none font-bold">
+                {dbName}
+              </span>
+            </div>
+          </div>
         )}
 
         <div
@@ -98,15 +118,18 @@ export function Header() {
             isReady
               ? "badge-success"
               : (mode === "url" && apiUrl ? "badge-error" : "badge-warning")
-          } badge-sm font-bold tracking-widest text-[9px] ${
+          } badge-sm font-bold tracking-widest text-[9px] cursor-pointer ${
             !isReady && mode === "url" ? "animate-pulse" : ""
           }`}
+          onClick={() => mode === "url" && setShowLogin(true)}
         >
           {isReady
             ? "READY"
             : (mode === "url" && apiUrl ? "ERROR" : "CONNECTING")}
         </div>
       </div>
+
+      <LoginModal isOpen={showLogin} onClose={() => setShowLogin(false)} />
 
       {/* About Modal */}
       {showAbout && createPortal(

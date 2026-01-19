@@ -40,6 +40,7 @@ export function TourProvider({ children }: { children: ReactNode }) {
   const exitTour = () => {
     setIsActive(false);
     setCurrentStep(0);
+    window.scrollTo({ top: 0 });
   };
 
   const steps = [
