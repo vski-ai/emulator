@@ -9,7 +9,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@rocketbase/emulator":
-        new URL("./vendor/emulator/index.ts", import.meta.url).pathname,
+        new URL("./emulator/index.ts", import.meta.url).pathname,
     },
   },
 });
