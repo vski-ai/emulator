@@ -787,7 +787,12 @@ export class RocketBaseClient {
         const text = await res.text();
         return text ? JSON.parse(text) : null;
       },
-      sendSignal: async (runId: string, signalName: string, data: any, correlationId?: string) => {
+      sendSignal: async (
+        runId: string,
+        signalName: string,
+        data: any,
+        correlationId?: string,
+      ) => {
         // 1. Create signal event
         await self.workflow.createEvent(runId, {
           eventType: "signal_received",

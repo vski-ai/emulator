@@ -2,7 +2,8 @@
 @plugin "daisyui";
 
 @theme {
-  --font-sans: "JetBrains Mono", "Fira Code", "Roboto Mono", ui-monospace, monospace;
+  --font-sans:
+    "JetBrains Mono", "Fira Code", "Roboto Mono", ui-monospace, monospace;
 }
 
 @layer base {

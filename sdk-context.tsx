@@ -1,5 +1,15 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { RocketBaseClient, WorkflowWorker, WorkflowRegistry } from "@rocketbase/client";
+import React, {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import {
+  RocketBaseClient,
+  WorkflowRegistry,
+  WorkflowWorker,
+} from "@rocketbase/client";
 import { installEmulator } from "@rocketbase/emulator";
 import "./workflows.ts"; // Ensure workflows are registered
 
@@ -18,10 +28,10 @@ const SdkContext = createContext<SdkContextType | undefined>(undefined);
 
 export function SdkProvider({
   children,
-  forceMode
+  forceMode,
 }: {
   children: ReactNode;
-  forceMode?: SdkMode
+  forceMode?: SdkMode;
 }) {
   const [mode, setMode] = useState<SdkMode>(forceMode || "emulator");
   const [apiUrl, setApiUrl] = useState("http://localhost:3001");
@@ -34,7 +44,7 @@ export function SdkProvider({
 
     const init = async () => {
       setIsReady(false);
-      
+
       // Cleanup previous state
       if (worker) worker.stop();
       if (stopEmulator) stopEmulator();
@@ -45,11 +55,11 @@ export function SdkProvider({
       if (mode === "emulator") {
         const emu = installEmulator();
         stopEmulator = emu.stop;
-        
+
         // Start workers for all registered workflows automatically
         const workflowNames = Array.from(WorkflowRegistry.keys());
         console.log("Starting emulator workers for:", workflowNames);
-        
+
         // In a real app we'd have a pool, for demo we just start them all
         for (const name of workflowNames) {
           const w = new WorkflowWorker(newClient);
@@ -57,7 +67,7 @@ export function SdkProvider({
         }
 
         (window as any).emulatorService = emu.service;
-      } else {        // Ping API to verify connectivity
+      } else { // Ping API to verify connectivity
         try {
           const res = await fetch(`${targetUrl}/api/admins/has-admins`);
           if (!res.ok) throw new Error("Unreachable");
@@ -82,7 +92,9 @@ export function SdkProvider({
   }, [mode, apiUrl]);
 
   return (
-    <SdkContext.Provider value={{ client, mode, setMode, apiUrl, setApiUrl, isReady }}>
+    <SdkContext.Provider
+      value={{ client, mode, setMode, apiUrl, setApiUrl, isReady }}
+    >
       {children}
     </SdkContext.Provider>
   );

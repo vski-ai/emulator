@@ -1,7 +1,8 @@
 # RocketBase SDK
 
-The RocketBase (RB) SDK is a runtime-agnostic client for interacting with the RocketBase platform. It supports standard database operations, realtime subscriptions, and provides a powerful engine for durable workflows.
-
+The RocketBase (RB) SDK is a runtime-agnostic client for interacting with the
+RocketBase platform. It supports standard database operations, realtime
+subscriptions, and provides a powerful engine for durable workflows.
 
 ## Quick Start
 
@@ -14,7 +15,10 @@ const client = new RocketBaseClient("http://localhost:3001");
 await client.admins.authWithPassword("admin@example.com", "password123");
 
 // Or as a regular user
-await client.collection("users").authWithPassword("user@example.com", "password123");
+await client.collection("users").authWithPassword(
+  "user@example.com",
+  "password123",
+);
 ```
 
 ## Database Operations
@@ -28,13 +32,13 @@ const posts = client.collection("posts");
 const record = await posts.create({
   title: "Hello World",
   content: "This is my first post",
-  status: "draft"
+  status: "draft",
 });
 
 // List records
 const { items, totalItems } = await posts.getList(1, 30, {
   filter: 'status = "published"',
-  expand: "author"
+  expand: "author",
 });
 
 // Update
@@ -54,7 +58,7 @@ await posts.bulkDelete(["id1", "id2"]);
 const unsubscribe = client.collection("messages").subscribe((event) => {
   console.log(event.action); // "create", "update", or "delete"
   console.log(event.record);
-}, { /* optional: lastId, group */ });
+}, {/* optional: lastId, group */});
 
 // Later
 unsubscribe();
@@ -62,12 +66,14 @@ unsubscribe();
 
 ## Durable Workflows
 
-RocketBase supports "Code as Infrastructure" durable workflows. They survive restarts, handle retries automatically, and can wait for days for external signals.
+RocketBase supports "Code as Infrastructure" durable workflows. They survive
+restarts, handle retries automatically, and can wait for days for external
+signals.
 
 ### 1. Functional Style (Recommended)
 
 ```typescript
-import { workflow, step } from "@rocketbase/client";
+import { step, workflow } from "@rocketbase/client";
 
 // Define reusable steps
 const notifyUser = step("notify", async (email: string) => {
@@ -79,7 +85,7 @@ const notifyUser = step("notify", async (email: string) => {
 workflow("welcome-flow").run(async (ctx, email: string) => {
   await ctx.sleep("1h"); // Durable sleep
   await notifyUser(email);
-  
+
   // Wait for an external signal (e.g. user clicking a link)
   const confirmation = await ctx.waitForSignal("user-confirm");
   return { confirmed: confirmation.success };
@@ -89,7 +95,7 @@ workflow("welcome-flow").run(async (ctx, email: string) => {
 ### 2. Class-Based Style (Decorators)
 
 ```typescript
-import { Workflow, Step, WorkflowBase } from "@rocketbase/client";
+import { Step, Workflow, WorkflowBase } from "@rocketbase/client";
 
 @Workflow("order-process")
 class OrderWorkflow extends WorkflowBase {
@@ -130,6 +136,7 @@ await client.workflow.sendSignal(run.runId, "user-confirm", { success: true });
 ## API Reference
 
 ### RocketBaseClient
+
 - `auth`: General user authentication methods.
 - `admins`: Admin-specific authentication and management.
 - `collection(name)`: CRUD and Realtime for a specific collection.
@@ -139,7 +146,9 @@ await client.workflow.sendSignal(run.runId, "user-confirm", { success: true });
 - `cron`: Manage recurring jobs.
 
 ### WorkflowContext (Functional `ctx` or Class `this`)
-- `sleep(duration)`: Suspend execution for a duration (e.g., `"1h"`, `"2d"`, `5000`).
+
+- `sleep(duration)`: Suspend execution for a duration (e.g., `"1h"`, `"2d"`,
+  `5000`).
 - `waitForSignal<T>(name)`: Suspend until an external signal is received.
 - `parallel(steps[])`: Execute multiple steps concurrently with durability.
 - `runId`: The unique ID of the current execution.

@@ -8,10 +8,15 @@ mermaid.initialize({
     useMaxWidth: true,
     htmlLabels: true,
     curve: "basis",
-  }
+  },
 });
 
-export function Mermaid({ chart, theme = "default" }: { chart: string; theme?: "default" | "dark" | "neutral" | "forest" }) {
+export function Mermaid(
+  { chart, theme = "default" }: {
+    chart: string;
+    theme?: "default" | "dark" | "neutral" | "forest";
+  },
+) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -23,7 +28,12 @@ export function Mermaid({ chart, theme = "default" }: { chart: string; theme?: "
   }, [chart, theme]);
 
   return (
-    <div className={`mermaid flex justify-center py-4 rounded-xl ${theme === 'dark' ? 'bg-base-300' : 'bg-white'}`} ref={ref}>
+    <div
+      className={`mermaid flex justify-center py-4 rounded-xl ${
+        theme === "dark" ? "bg-base-300" : "bg-white"
+      }`}
+      ref={ref}
+    >
       {chart}
     </div>
   );

@@ -1,4 +1,4 @@
-import { workflow, step } from "@rocketbase/client";
+import { step, workflow } from "@rocketbase/client";
 
 // Reusable steps
 const logStep = step("log-action", async (msg: string) => {
@@ -11,15 +11,19 @@ const sendEmail = step("send-email", async (to: string, subject: string) => {
 });
 
 // 1. Expense Approval
-workflow("approval-workflow").run(async function (ctx, amount: number, description: string) {
-  await logStep(`Requesting $${amount} for ${description}`);
-  const approval = await ctx.waitForSignal<{ approved: boolean }>("manager-approval");
-  if (approval.approved) {
-    await logStep("Payment processed");
-    return { status: "paid" };
-  }
-  return { status: "rejected" };
-});
+workflow("approval-workflow").run(
+  async function (ctx, amount: number, description: string) {
+    await logStep(`Requesting $${amount} for ${description}`);
+    const approval = await ctx.waitForSignal<{ approved: boolean }>(
+      "manager-approval",
+    );
+    if (approval.approved) {
+      await logStep("Payment processed");
+      return { status: "paid" };
+    }
+    return { status: "rejected" };
+  },
+);
 
 // 2. User Onboarding
 workflow("user-onboarding").run(async function (ctx, email: string) {
@@ -113,7 +117,7 @@ workflow("delivery-saga").run(async function (ctx, orderId: string) {
   // Complectation & Manager Approval Loop
   while (!shippingApproved) {
     await logStep(`Phase: Complectation for ${orderId}`);
-    
+
     // Parallel tasks for warehouses
     await ctx.parallel([
       async () => {
@@ -129,12 +133,14 @@ workflow("delivery-saga").run(async function (ctx, orderId: string) {
           warehouseBOk = true;
           await logStep("Warehouse B marked item as ready");
         }
-      }
+      },
     ]);
 
     await logStep("Waiting for Delivery Manager inspection...");
-    const decision = await ctx.waitForSignal<{ action: "approve" | "reject-a" | "reject-b" }>(
-      "manager-shipment-review"
+    const decision = await ctx.waitForSignal<
+      { action: "approve" | "reject-a" | "reject-b" }
+    >(
+      "manager-shipment-review",
     );
 
     if (decision.action === "approve") {
@@ -143,7 +149,11 @@ workflow("delivery-saga").run(async function (ctx, orderId: string) {
     } else {
       if (decision.action === "reject-a") warehouseAOk = false;
       if (decision.action === "reject-b") warehouseBOk = false;
-      await logStep(`Manager rejected ${decision.action === "reject-a" ? "Item A" : "Item B"}. Returning to complectation.`);
+      await logStep(
+        `Manager rejected ${
+          decision.action === "reject-a" ? "Item A" : "Item B"
+        }. Returning to complectation.`,
+      );
     }
   }
 
@@ -154,24 +164,34 @@ workflow("delivery-saga").run(async function (ctx, orderId: string) {
     await ctx.waitForSignal("driver-pickup");
     await logStep("Driver is on the way!");
 
-    const attempt = await ctx.waitForSignal<{ status: "success" | "fail" }>("delivery-attempt-result");
-    
+    const attempt = await ctx.waitForSignal<{ status: "success" | "fail" }>(
+      "delivery-attempt-result",
+    );
+
     if (attempt.status === "fail") {
-      await logStep("Delivery failed (Weather/Client unavailable). Returning to station.");
+      await logStep(
+        "Delivery failed (Weather/Client unavailable). Returning to station.",
+      );
       await ctx.sleep("2s");
       continue; // Back to driver-pickup
     }
 
     await logStep("Package at client doorstep. Waiting for signature...");
-    const clientAction = await ctx.waitForSignal<{ action: "accept" | "reject" }>("client-decision");
+    const clientAction = await ctx.waitForSignal<
+      { action: "accept" | "reject" }
+    >("client-decision");
 
     if (clientAction.action === "accept") {
       delivered = true;
       await logStep("Order successfully delivered and accepted!");
     } else {
-      await logStep("Client rejected package. Returning to delivery manager for resolution.");
-      const managerAction = await ctx.waitForSignal<{ action: "refund" | "re-complectate" }>("manager-resolution");
-      
+      await logStep(
+        "Client rejected package. Returning to delivery manager for resolution.",
+      );
+      const managerAction = await ctx.waitForSignal<
+        { action: "refund" | "re-complectate" }
+      >("manager-resolution");
+
       if (managerAction.action === "refund") {
         await logStep("Manager triggered refund. Saga ending.");
         return { status: "refunded" };
@@ -191,14 +211,16 @@ workflow("delivery-saga").run(async function (ctx, orderId: string) {
 // 12. AI Content Pipeline (Complex)
 workflow("ai-pipeline").run(async function (ctx, content: string) {
   await logStep("AI: Scanning for NSFW/Safety...");
-  const isSafe = await ctx.waitForSignal<{ safe: boolean; escalate: boolean }>("ai-safety-check");
+  const isSafe = await ctx.waitForSignal<{ safe: boolean; escalate: boolean }>(
+    "ai-safety-check",
+  );
 
   if (isSafe.escalate) {
     await logStep("AI Unsure. Escalating to human moderators...");
     // Human multi-sig (both must approve)
     await ctx.parallel([
       () => ctx.waitForSignal("mod-1-approve"),
-      () => ctx.waitForSignal("mod-2-approve")
+      () => ctx.waitForSignal("mod-2-approve"),
     ]);
     await logStep("Humans approved content.");
   } else if (!isSafe.safe) {
@@ -218,12 +240,12 @@ workflow("ai-pipeline").run(async function (ctx, content: string) {
     async () => {
       await ctx.sleep("2s");
       return "German version";
-    }
+    },
   ]);
 
   await logStep("Translations ready. Waiting for proofreader...");
   await ctx.waitForSignal("proofreader-signoff");
-  
+
   await logStep("Content published to all regions.");
   return { status: "published", variants: translations.length };
 });

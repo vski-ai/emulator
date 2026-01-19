@@ -10,6 +10,6 @@ if (container) {
   root.render(
     <TourProvider>
       <App />
-    </TourProvider>
+    </TourProvider>,
   );
 }

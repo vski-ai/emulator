@@ -1,13 +1,20 @@
 # RocketBase Workflow Emulator
 
-The RocketBase Workflow Emulator is a lightweight, in-memory implementation of the RocketBase workflow engine. It is designed specifically for **browser environments**, **demos**, and **unit testing**, allowing you to run durable workflows without a dedicated backend or database.
+The RocketBase Workflow Emulator is a lightweight, in-memory implementation of
+the RocketBase workflow engine. It is designed specifically for **browser
+environments**, **demos**, and **unit testing**, allowing you to run durable
+workflows without a dedicated backend or database.
 
 ## Features
 
-- **In-Memory Storage**: Full tracking of workflow runs, steps, events, and hooks in local memory.
-- **Fetch Interceptor**: Automatically redirects RocketBase SDK requests to the local emulator.
-- **WebSocket Mock**: Simulates real-time worker communication within the browser.
-- **Durable Logic**: Supports retries, deterministic step execution, signals, and sleeps.
+- **In-Memory Storage**: Full tracking of workflow runs, steps, events, and
+  hooks in local memory.
+- **Fetch Interceptor**: Automatically redirects RocketBase SDK requests to the
+  local emulator.
+- **WebSocket Mock**: Simulates real-time worker communication within the
+  browser.
+- **Durable Logic**: Supports retries, deterministic step execution, signals,
+  and sleeps.
 - **Zero Configuration**: No Postgres or Redis required.
 
 ## Getting Started
@@ -20,10 +27,16 @@ import { installEmulator } from "@rocketbase/emulator";
 
 ### Quick Start (Browser/Test)
 
-Calling `installEmulator()` globally patches `fetch` and `WebSocket` to redirect workflow traffic.
+Calling `installEmulator()` globally patches `fetch` and `WebSocket` to redirect
+workflow traffic.
 
 ```typescript
-import { RocketBaseClient, WorkflowWorker, workflow, step } from "@rocketbase/client";
+import {
+  RocketBaseClient,
+  step,
+  workflow,
+  WorkflowWorker,
+} from "@rocketbase/client";
 import { installEmulator } from "@rocketbase/emulator";
 
 // 1. Install the emulator
@@ -54,23 +67,27 @@ emulator.stop();
 
 The emulator operates by intercepting runtime globals:
 
-1.  **`fetch`**: Any request starting with `/api/workflows` is caught by the `EmulatorFetchInterceptor` and handled by the `EmulatorWorkflowService`.
-2.  **`WebSocket`**: Any connection to `/api/workflow/ws` is caught by the `EmulatorWebSocket` and connected to a virtual `EmulatorWebSocketServer`.
+1. **`fetch`**: Any request starting with `/api/workflows` is caught by the
+   `EmulatorFetchInterceptor` and handled by the `EmulatorWorkflowService`.
+2. **`WebSocket`**: Any connection to `/api/workflow/ws` is caught by the
+   `EmulatorWebSocket` and connected to a virtual `EmulatorWebSocketServer`.
 
-This means your application code and the RocketBase SDK don't need to know they are running against an emulator.
+This means your application code and the RocketBase SDK don't need to know they
+are running against an emulator.
 
 ## Advanced Usage
 
 ### Manual Installation
 
-If you don't want to use the high-level `installEmulator()` helper, you can set up components manually:
+If you don't want to use the high-level `installEmulator()` helper, you can set
+up components manually:
 
 ```typescript
-import { 
-  EmulatorWorkflowService, 
-  EmulatorFetchInterceptor, 
-  EmulatorWebSocketServer, 
-  installWebSocketEmulator 
+import {
+  EmulatorFetchInterceptor,
+  EmulatorWebSocketServer,
+  EmulatorWorkflowService,
+  installWebSocketEmulator,
 } from "@rocketbase/emulator";
 
 const service = new EmulatorWorkflowService();
@@ -86,7 +103,8 @@ installWebSocketEmulator(wsServer);
 
 ### Multi-Tenancy
 
-The emulator supports the `x-dbname` header just like the real API. Data is isolated per database name within the `MemoryStorage` singleton.
+The emulator supports the `x-dbname` header just like the real API. Data is
+isolated per database name within the `MemoryStorage` singleton.
 
 ```typescript
 client.setDb("customer_a");
@@ -95,6 +113,10 @@ client.setDb("customer_a");
 
 ## Limitations
 
-- **Persistence**: All data is lost on page refresh (unless you manually serialize/deserialize `MemoryStorage`).
-- **Isolation**: In some browser environments without `AsyncLocalStorage` support, interleaved concurrent workflows might share global context if using the functional style without explicit context passing.
-- **Performance**: Designed for logic verification and demos, not high-throughput production workloads.
+- **Persistence**: All data is lost on page refresh (unless you manually
+  serialize/deserialize `MemoryStorage`).
+- **Isolation**: In some browser environments without `AsyncLocalStorage`
+  support, interleaved concurrent workflows might share global context if using
+  the functional style without explicit context passing.
+- **Performance**: Designed for logic verification and demos, not
+  high-throughput production workloads.

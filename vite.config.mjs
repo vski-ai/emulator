@@ -8,8 +8,10 @@ export default defineConfig({
   publicDir: "public",
   resolve: {
     alias: {
-      "@rocketbase/client": new URL("./vendor/client/exports.ts", import.meta.url).pathname,
-      "@rocketbase/emulator": new URL("./vendor/emularor/index.ts", import.meta.url).pathname,
+      "@rocketbase/client":
+        new URL("./vendor/client/exports.ts", import.meta.url).pathname,
+      "@rocketbase/emulator":
+        new URL("./vendor/emularor/index.ts", import.meta.url).pathname,
     },
   },
 });
