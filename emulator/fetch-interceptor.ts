@@ -127,11 +127,22 @@ export class EmulatorFetchInterceptor {
   private originalFetch: typeof globalThis.fetch | null = null;
 
   install() {
-    this.originalFetch = globalThis.fetch;
+    this.originalFetch = globalThis.fetch.bind(globalThis);
     globalThis.fetch = async (
       input: string | URL | Request,
       init?: RequestInit,
     ) => {
+      // Optimization: Check URL string before constructing Request object to avoid overhead/side-effects
+      let urlString: string | undefined;
+      if (typeof input === "string") urlString = input;
+      else if (input instanceof URL) urlString = input.toString();
+      else if (input instanceof Request) urlString = input.url;
+
+      // Simple check for the path prefix (handling relative and absolute URLs)
+      if (urlString && !urlString.includes("/api/workflows")) {
+        return this.originalFetch!(input, init);
+      }
+
       const request = new Request(input, init);
       const response = await this.handleRequest(request);
       if (response) return response;
