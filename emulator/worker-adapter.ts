@@ -3,6 +3,7 @@
 
 import { EmulatorWorkflowService } from "./service.ts";
 import { EmulatorFetchInterceptor } from "./fetch-interceptor.ts";
+import { MemoryStorage } from "./storage.ts";
 import {
   EmulatorWebSocketServer,
   installWebSocketEmulator,
@@ -19,8 +20,15 @@ export function installEmulator() {
 
   // Background processing for waits
   const interval = setInterval(async () => {
-    // Process all databases (we'd need a list, but for emulation let's just do postgres and common ones)
-    await service.processWaits("postgres");
+    // Process all databases in memory
+    const dbs = MemoryStorage.getAllDbNames();
+    for (const db of dbs) {
+      try {
+        await service.processWaits(db);
+      } catch (e) {
+        console.error(`Error processing waits for ${db}:`, e);
+      }
+    }
   }, 1000);
 
   return {

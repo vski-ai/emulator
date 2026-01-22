@@ -81,6 +81,10 @@ export class MemoryStorage {
     return this.instances.get(dbName)!;
   }
 
+  static getAllDbNames(): string[] {
+    return Array.from(this.instances.keys());
+  }
+
   static clear() {
     this.instances.clear();
   }

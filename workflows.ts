@@ -1,12 +1,12 @@
 import { step, workflow } from "@vski/sdk";
 
 // Reusable steps
-const logStep = step("log-action", async (msg: string) => {
+const logStep = step(async function logAction(msg: string) {
   console.log("Action:", msg);
   return { success: true, timestamp: new Date().toISOString() };
 });
 
-const sendEmail = step("send-email", async (to: string, subject: string) => {
+const sendEmail = step(async function sendEmail(to: string, subject: string) {
   return { sent: true, to, subject };
 });
 
@@ -164,15 +164,17 @@ workflow("delivery-saga").run(async function (ctx, orderId: string) {
     await ctx.waitForSignal("driver-pickup");
     await logStep("Driver is on the way!");
 
+    console.log(1111);
     const attempt = await ctx.waitForSignal<{ status: "success" | "fail" }>(
       "delivery-attempt-result",
     );
 
+    // this never unsleeps
     if (attempt.status === "fail") {
       await logStep(
         "Delivery failed (Weather/Client unavailable). Returning to station.",
       );
-      await ctx.sleep("2s");
+      await ctx.sleep(2000);
       continue; // Back to driver-pickup
     }
 
