@@ -11,7 +11,7 @@ import {
   ShieldCheck,
   TestTube,
 } from "lucide-react";
-import { RocketBaseClient } from "@rocketbase/client";
+import { RocketBaseClient } from "@vski/sdk";
 
 interface LoginModalProps {
   isOpen: boolean;

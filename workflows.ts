@@ -1,4 +1,4 @@
-import { step, workflow } from "@rocketbase/client";
+import { step, workflow } from "@vski/sdk";
 
 // Reusable steps
 const logStep = step("log-action", async (msg: string) => {

@@ -5,11 +5,7 @@ import React, {
   useEffect,
   useState,
 } from "react";
-import {
-  RocketBaseClient,
-  WorkflowRegistry,
-  WorkflowWorker,
-} from "@rocketbase/client";
+import { RocketBaseClient, WorkflowRegistry, WorkflowWorker } from "@vski/sdk";
 import { installEmulator } from "@rocketbase/emulator";
 import "./workflows.ts"; // Ensure workflows are registered
 

@@ -29,7 +29,7 @@ export function Header() {
           <Database className="w-7 h-7 text-primary" strokeWidth={3} />
           VSKI{" "}
           <span className="font-light text-base-content/40 not-italic">
-            WORKFLOWS
+            EMULATOR
           </span>
         </a>
 

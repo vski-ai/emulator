@@ -31,12 +31,7 @@ Calling `installEmulator()` globally patches `fetch` and `WebSocket` to redirect
 workflow traffic.
 
 ```typescript
-import {
-  RocketBaseClient,
-  step,
-  workflow,
-  WorkflowWorker,
-} from "@rocketbase/client";
+import { RocketBaseClient, step, workflow, WorkflowWorker } from "@vski/sdk";
 import { installEmulator } from "@rocketbase/emulator";
 
 // 1. Install the emulator
