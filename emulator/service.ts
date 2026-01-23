@@ -11,6 +11,8 @@ import {
 } from "./storage.ts";
 
 export class EmulatorWorkflowService {
+  private instanceId = Math.random().toString(16).substring(2);
+
   private generateId(prefix: string) {
     const ts = Date.now().toString(16).padStart(12, "0");
     const random = Math.random().toString(16).substring(2, 10);
@@ -19,6 +21,31 @@ export class EmulatorWorkflowService {
 
   private getStorage(dbName: string) {
     return MemoryStorage.get(dbName);
+  }
+
+  private isRunLocked(dbName: string, runId: string): boolean {
+    if (typeof localStorage === "undefined") return false;
+    const lockKey = `rb_emu_lock:${dbName}:${runId}`;
+    const lockData = localStorage.getItem(lockKey);
+    if (!lockData) return false;
+    try {
+      const { owner, expiresAt } = JSON.parse(lockData);
+      return owner !== this.instanceId && expiresAt > Date.now();
+    } catch {
+      return false;
+    }
+  }
+
+  private lockRun(dbName: string, runId: string, ttlMs = 30000) {
+    if (typeof localStorage === "undefined") return;
+    const lockKey = `rb_emu_lock:${dbName}:${runId}`;
+    localStorage.setItem(
+      lockKey,
+      JSON.stringify({
+        owner: this.instanceId,
+        expiresAt: Date.now() + ttlMs,
+      }),
+    );
   }
 
   async createRun(dbName: string, data: any) {
@@ -34,6 +61,7 @@ export class EmulatorWorkflowService {
       updatedAt: new Date(),
     };
     storage.runs.set(run.runId, run);
+    storage.persist();
     return run;
   }
 
@@ -61,6 +89,7 @@ export class EmulatorWorkflowService {
 
     Object.assign(run, data);
     run.updatedAt = new Date();
+    storage.persist();
     return run;
   }
 
@@ -102,6 +131,7 @@ export class EmulatorWorkflowService {
       updatedAt: new Date(),
     };
     storage.steps.set(id, step);
+    storage.persist();
     return step;
   }
 
@@ -126,6 +156,7 @@ export class EmulatorWorkflowService {
 
     Object.assign(step, data);
     step.updatedAt = new Date();
+    storage.persist();
     return step;
   }
 
@@ -139,6 +170,18 @@ export class EmulatorWorkflowService {
 
   async createEvent(dbName: string, runId: string, data: any) {
     const storage = this.getStorage(dbName);
+
+    // Idempotency: check for existing event with same correlationId and eventType
+    if (data.correlationId) {
+      const existing = storage.events.find(
+        (e) =>
+          e.runId === runId &&
+          e.correlationId === data.correlationId &&
+          e.eventType === data.eventType,
+      );
+      if (existing) return existing;
+    }
+
     const event: MemoryWorkflowEvent = {
       eventId: this.generateId("wevt_"),
       runId,
@@ -148,6 +191,7 @@ export class EmulatorWorkflowService {
       createdAt: new Date(),
     };
     storage.events.push(event);
+    storage.persist();
     return event;
   }
 
@@ -169,6 +213,7 @@ export class EmulatorWorkflowService {
       updatedAt: new Date(),
     };
     storage.hooks.set(hook.hookId, hook);
+    storage.persist();
     return hook;
   }
 
@@ -195,6 +240,7 @@ export class EmulatorWorkflowService {
       messageId: this.generateId("msg_"),
       queueName,
       payload: JSON.stringify(message),
+      runId: opts?.runId,
       idempotencyKey: opts?.idempotencyKey,
       status: "pending",
       attempt: 0,
@@ -204,23 +250,48 @@ export class EmulatorWorkflowService {
       updatedAt: new Date(),
     };
     storage.queue.push(msg);
+    storage.persist();
     return { messageId: msg.messageId };
   }
 
   async poll(dbName: string, queueName: string) {
     const storage = this.getStorage(dbName);
     const now = new Date();
-    const msg = storage.queue.find((m) =>
-      m.queueName === queueName &&
-      m.status === "pending" &&
-      m.notBefore <= now
-    );
+
+    const msg = storage.queue.find((m) => {
+      if (
+        m.queueName !== queueName || m.status !== "pending" || m.notBefore > now
+      ) {
+        return false;
+      }
+
+      // If runId is present, check for both in-memory and localStorage locks
+      if (m.runId) {
+        const isProcessingInMemory = storage.queue.some(
+          (m2) =>
+            m2.queueName === queueName &&
+            m2.runId === m.runId &&
+            m2.status === "processing",
+        );
+        if (isProcessingInMemory) return false;
+
+        // Cross-tab lock check
+        if (this.isRunLocked(dbName, m.runId)) return false;
+      }
+
+      return true;
+    });
 
     if (!msg) return null;
+
+    if (msg.runId) {
+      this.lockRun(dbName, msg.runId);
+    }
 
     msg.status = "processing";
     msg.attempt += 1;
     msg.updatedAt = new Date();
+    storage.persist();
 
     return {
       id: msg.messageId,
@@ -236,6 +307,10 @@ export class EmulatorWorkflowService {
       msg.status = "completed";
       msg.processedAt = new Date();
       msg.updatedAt = new Date();
+      if (msg.runId && typeof localStorage !== "undefined") {
+        localStorage.removeItem(`rb_emu_lock:${dbName}:${msg.runId}`);
+      }
+      storage.persist();
     }
     return { success: true };
   }
@@ -247,6 +322,10 @@ export class EmulatorWorkflowService {
       msg.status = "pending";
       msg.notBefore = new Date(Date.now() + 5000);
       msg.updatedAt = new Date();
+      if (msg.runId && typeof localStorage !== "undefined") {
+        localStorage.removeItem(`rb_emu_lock:${dbName}:${msg.runId}`);
+      }
+      storage.persist();
     }
     return { success: true };
   }
@@ -256,6 +335,7 @@ export class EmulatorWorkflowService {
     const msg = storage.queue.find((m) => m.messageId === messageId);
     if (msg) {
       msg.updatedAt = new Date();
+      storage.persist();
     }
     return { success: true };
   }
@@ -276,6 +356,7 @@ export class EmulatorWorkflowService {
         count++;
       }
     }
+    if (count > 0) storage.persist();
     return count;
   }
 
@@ -310,11 +391,14 @@ export class EmulatorWorkflowService {
             workflowName: run.workflowName,
             input: run.input,
             executionContext: run.executionContext,
+          }, {
+            runId: run.runId,
           });
         }
         processed++;
       }
     }
+    if (processed > 0) storage.persist();
     return processed;
   }
 }
