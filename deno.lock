@@ -2471,7 +2471,18 @@
     "https://raw.githubusercontent.com/vski-ai/sdk/refs/tags/0.0.6/src/suspension.ts": "4bc8cca4454986b40d0783dfd1a3026b316453d6f53832d1254ae52f84ebebe0",
     "https://raw.githubusercontent.com/vski-ai/sdk/refs/tags/0.0.6/src/types.ts": "1f1217e38607bea5aae3fe4512291dd9209cc2288ac459281faad883f1e1efd3",
     "https://raw.githubusercontent.com/vski-ai/sdk/refs/tags/0.0.6/src/worker.ts": "5fe74a11597ffb2a366b683371c7e33c561b70817ea5883f6143ad5d9a0b11c1",
-    "https://raw.githubusercontent.com/vski-ai/sdk/refs/tags/0.0.6/src/workflow-base.ts": "51e0045740478cd02f34941043313b9aaf9a4b17e97dec8983d7ea8e85087586"
+    "https://raw.githubusercontent.com/vski-ai/sdk/refs/tags/0.0.6/src/workflow-base.ts": "51e0045740478cd02f34941043313b9aaf9a4b17e97dec8983d7ea8e85087586",
+    "https://raw.githubusercontent.com/vski-ai/sdk/refs/tags/0.0.7/exports.ts": "0e83956f90ca10b368f01933e5ff322cbf4e92138d88e7f077b2cedecfee2c8e",
+    "https://raw.githubusercontent.com/vski-ai/sdk/refs/tags/0.0.7/src/client.ts": "3c0f7afc89fe90cac918b38235a576789aa739b31acbeffd50eac5fd1e03287a",
+    "https://raw.githubusercontent.com/vski-ai/sdk/refs/tags/0.0.7/src/context.ts": "98141c52a41b9a1a81341874b8960de6e5b41319a63b9482c4ac0b01a99557de",
+    "https://raw.githubusercontent.com/vski-ai/sdk/refs/tags/0.0.7/src/decorators.ts": "bf69d1f2e0e3b2afaf82c6fd6088357bb391d0ccef98d47a488d4285c426d3b9",
+    "https://raw.githubusercontent.com/vski-ai/sdk/refs/tags/0.0.7/src/errors.ts": "b8a877d7636d8c4ffc95f30e2f57f9cbb201ba8d82aea200cb9730c5ff041b5d",
+    "https://raw.githubusercontent.com/vski-ai/sdk/refs/tags/0.0.7/src/functional.ts": "eb33f181b23a464c204b98945caca3a6065d896369c4e8a43d7882978a4ef031",
+    "https://raw.githubusercontent.com/vski-ai/sdk/refs/tags/0.0.7/src/registry.ts": "c188bc7e54a0b661fb4838c47bfa31360f23f251e84c8d79adb75e83f956834b",
+    "https://raw.githubusercontent.com/vski-ai/sdk/refs/tags/0.0.7/src/suspension.ts": "4bc8cca4454986b40d0783dfd1a3026b316453d6f53832d1254ae52f84ebebe0",
+    "https://raw.githubusercontent.com/vski-ai/sdk/refs/tags/0.0.7/src/types.ts": "1f1217e38607bea5aae3fe4512291dd9209cc2288ac459281faad883f1e1efd3",
+    "https://raw.githubusercontent.com/vski-ai/sdk/refs/tags/0.0.7/src/worker.ts": "5fe74a11597ffb2a366b683371c7e33c561b70817ea5883f6143ad5d9a0b11c1",
+    "https://raw.githubusercontent.com/vski-ai/sdk/refs/tags/0.0.7/src/workflow-base.ts": "51e0045740478cd02f34941043313b9aaf9a4b17e97dec8983d7ea8e85087586"
   },
   "workspace": {
     "dependencies": [
