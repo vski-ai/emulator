@@ -2,6 +2,7 @@ export interface WorkflowDemo {
   id: string;
   name: string;
   category: string;
+  layout?: "default" | "chat";
   isTop?: boolean;
   description: string;
   icon: string;
@@ -12,11 +13,165 @@ export interface WorkflowDemo {
   actors: {
     name: string;
     role: "user" | "manager" | "system";
-    signals?: { name: string; label: string; data: any }[];
+    signals?: { name: string; label: string; data: any; chatLabel?: string }[];
   }[];
 }
 
 export const WORKFLOW_DEMOS: WorkflowDemo[] = [
+  {
+    id: "simple-store",
+    name: "Chat Store Demo",
+    category: "Commerce",
+    layout: "chat",
+    isTop: true,
+    description:
+      "A simulated chat-based store experience demonstrating durable human-in-the-loop flows.",
+    icon: "ShoppingBag",
+    color: "accent",
+    defaultInput: ["user_123"],
+    hasCode: true,
+    hasFlowchart: true,
+    actors: [
+      {
+        name: "Store User",
+        role: "user",
+        signals: [
+          {
+            name: "confirm-buy",
+            label: "Buy Now",
+            data: {},
+            chatLabel: "I've confirmed my order and paid.",
+          },
+          {
+            name: "client-response",
+            label: "Accept Delay",
+            data: { action: "wait" },
+            chatLabel: "I am willing to wait for the shipment.",
+          },
+          {
+            name: "client-response",
+            label: "Cancel Order",
+            data: { action: "cancel" },
+            chatLabel: "I'd like to cancel my order, please.",
+          },
+          {
+            name: "client-decision",
+            label: "Accept Order",
+            data: { action: "accept" },
+            chatLabel: "The package has arrived. I accept it.",
+          },
+          {
+            name: "client-decision",
+            label: "Reject (Damaged)",
+            data: { action: "reject" },
+            chatLabel: "The package is damaged. I am rejecting the delivery.",
+          },
+        ],
+      },
+      {
+        name: "Store Manager",
+        role: "manager",
+        signals: [
+          {
+            name: "manager-action",
+            label: "Accept Order",
+            data: { action: "accept" },
+            chatLabel: "Order approved for fulfillment.",
+          },
+          {
+            name: "manager-action",
+            label: "Ask Client (Delay)",
+            data: { action: "ask_client" },
+            chatLabel: "Delay confirmed. Notifying client.",
+          },
+          {
+            name: "manager-action",
+            label: "Reject/Close",
+            data: { action: "close" },
+            chatLabel: "Order rejected and closed.",
+          },
+          {
+            name: "manager-shipment-review",
+            label: "Approve Shipment",
+            data: { action: "approve" },
+            chatLabel: "Shipment quality check passed. Approved.",
+          },
+          {
+            name: "manager-shipment-review",
+            label: "Reject A (Defect)",
+            data: { action: "reject-a" },
+            chatLabel: "Rejected Item A due to defect.",
+          },
+          {
+            name: "manager-shipment-review",
+            label: "Reject B (Defect)",
+            data: { action: "reject-b" },
+            chatLabel: "Rejected Item B due to defect.",
+          },
+          {
+            name: "manager-resolution",
+            label: "Trigger Refund",
+            data: { action: "refund" },
+            chatLabel: "Manager has triggered a full refund.",
+          },
+          {
+            name: "manager-resolution",
+            label: "Fix and Re-ship",
+            data: { action: "re-complectate" },
+            chatLabel: "Manager requested re-complectation and re-shipment.",
+          },
+        ],
+      },
+      {
+        name: "WH Manager A",
+        role: "manager",
+        signals: [
+          {
+            name: "warehouse-a-pick",
+            label: "Pack Item A",
+            data: {},
+            chatLabel: "Item A is now packed and ready for shipment.",
+          },
+        ],
+      },
+      {
+        name: "WH Manager B",
+        role: "manager",
+        signals: [
+          {
+            name: "warehouse-b-pick",
+            label: "Pack Item B",
+            data: {},
+            chatLabel: "Item B is now packed and ready for shipment.",
+          },
+        ],
+      },
+      {
+        name: "Delivery Driver",
+        role: "manager",
+        signals: [
+          {
+            name: "driver-pickup",
+            label: "Pick Up Package",
+            data: {},
+            chatLabel: "I have picked up the package from the warehouse.",
+          },
+          {
+            name: "delivery-attempt-result",
+            label: "Deliver Success",
+            data: { status: "success" },
+            chatLabel: "Delivery attempt successful.",
+          },
+          {
+            name: "delivery-attempt-result",
+            label: "Fail (Weather)",
+            data: { status: "fail" },
+            chatLabel: "Delivery attempt failed due to weather conditions.",
+          },
+        ],
+      },
+    ],
+  },
   {
     id: "approval-workflow",
     name: "Expense Approval",
@@ -38,11 +193,13 @@ export const WORKFLOW_DEMOS: WorkflowDemo[] = [
             name: "manager-approval",
             label: "Approve",
             data: { approved: true },
+            chatLabel: "Expense request approved.",
           },
           {
             name: "manager-approval",
             label: "Reject",
             data: { approved: false },
+            chatLabel: "Expense request rejected.",
           },
         ],
       },
@@ -216,6 +373,7 @@ export const WORKFLOW_DEMOS: WorkflowDemo[] = [
     name: "Global Delivery Saga",
     category: "Logistics",
     isTop: true,
+    layout: "chat",
     description:
       "Multi-warehouse complectation with manager review and recursive retry loops.",
     icon: "Truck",
@@ -228,14 +386,24 @@ export const WORKFLOW_DEMOS: WorkflowDemo[] = [
         name: "WH Manager A",
         role: "manager",
         signals: [
-          { name: "warehouse-a-pick", label: "Pack Item A", data: {} },
+          {
+            name: "warehouse-a-pick",
+            label: "Pack Item A",
+            data: {},
+            chatLabel: "Item A is packed and ready.",
+          },
         ],
       },
       {
         name: "WH Manager B",
         role: "manager",
         signals: [
-          { name: "warehouse-b-pick", label: "Pack Item B", data: {} },
+          {
+            name: "warehouse-b-pick",
+            label: "Pack Item B",
+            data: {},
+            chatLabel: "Item B is packed and ready.",
+          },
         ],
       },
       {
@@ -246,43 +414,55 @@ export const WORKFLOW_DEMOS: WorkflowDemo[] = [
             name: "manager-shipment-review",
             label: "Approve Shipment",
             data: { action: "approve" },
+            chatLabel: "Shipment approved by manager.",
           },
           {
             name: "manager-shipment-review",
             label: "Reject A (Defect)",
             data: { action: "reject-a" },
+            chatLabel: "Manager rejected Item A.",
           },
           {
             name: "manager-shipment-review",
             label: "Reject B (Defect)",
             data: { action: "reject-b" },
+            chatLabel: "Manager rejected Item B.",
           },
           {
             name: "manager-resolution",
             label: "Trigger Refund",
             data: { action: "refund" },
+            chatLabel: "Manager triggered refund.",
           },
           {
             name: "manager-resolution",
             label: "Fix and Re-ship",
             data: { action: "re-complectate" },
+            chatLabel: "Manager triggered re-complectation.",
           },
         ],
       },
       {
         name: "Delivery Driver",
-        role: "user",
+        role: "manager",
         signals: [
-          { name: "driver-pickup", label: "Pick Up Package", data: {} },
+          {
+            name: "driver-pickup",
+            label: "Pick Up Package",
+            data: {},
+            chatLabel: "Package picked up from warehouse.",
+          },
           {
             name: "delivery-attempt-result",
             label: "Deliver Success",
             data: { status: "success" },
+            chatLabel: "Delivery attempt successful.",
           },
           {
             name: "delivery-attempt-result",
             label: "Fail (Weather)",
             data: { status: "fail" },
+            chatLabel: "Delivery failed due to bad weather.",
           },
         ],
       },
@@ -294,11 +474,13 @@ export const WORKFLOW_DEMOS: WorkflowDemo[] = [
             name: "client-decision",
             label: "Accept Order",
             data: { action: "accept" },
+            chatLabel: "Package received and accepted.",
           },
           {
             name: "client-decision",
             label: "Reject (Damaged)",
             data: { action: "reject" },
+            chatLabel: "I am rejecting this package as it is damaged.",
           },
         ],
       },

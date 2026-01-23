@@ -1,0 +1,14 @@
+graph TD
+  Start((Start)) --> Msg1[Send Greeting]
+  Msg1 --> WaitBuy[Wait for Signal: Buy]
+  WaitBuy --> Msg2[Send Success]
+  Msg2 --> Msg3[Notify Manager]
+  Msg3 --> WaitMan[Wait for Signal: Manager Action]
+  WaitMan --> Decision{Action?}
+  Decision -- Accept --> Delivery[Delivery Saga]
+  Decision -- Close --> EndB((End: Cancelled))
+  Decision -- Ask --> Msg4[Ask Client: Delay]
+  Msg4 --> WaitClient[Wait for Signal: Client Response]
+  WaitClient -- Cancel --> EndC((End: Cancelled))
+  WaitClient -- Wait --> Delivery
+  Delivery --> EndA((End: Completed))

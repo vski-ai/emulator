@@ -106,7 +106,15 @@ export class EmulatorFetchInterceptor {
         const b = await request.json();
         return this.jsonResponse(await this.service.nack(db, b.messageId));
       }
-      if (path.startsWith("/api/workflows/queue/") && method === "GET") {
+      if (path === "/api/workflows/queue/touch" && method === "POST") {
+        const b = await request.json();
+        return this.jsonResponse(await this.service.touch(db, b.messageId));
+      }
+      if (
+        path.startsWith("/api/workflows/queue/") && method === "GET" &&
+        !path.endsWith("/ack") && !path.endsWith("/nack") &&
+        !path.endsWith("/touch")
+      ) {
         const name = path.split("/").pop()!;
         return this.jsonResponse(await this.service.poll(db, name));
       }

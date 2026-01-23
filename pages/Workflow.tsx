@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useSdk } from "@/sdk-context.tsx";
 import { WorkflowTester } from "@/components/WorkflowTester.tsx";
+import { ChatWorkflowTester } from "@/components/chat/ChatWorkflowTester.tsx";
 import { Link, useRoute } from "wouter";
 
 import { ArrowLeft, Code, Network, Play, RotateCcw } from "lucide-react";
@@ -93,12 +94,15 @@ export function WorkflowPage() {
 
   useEffect(() => {
     if (showCode && demo && !codeContent) {
+      // Logic for fetching code content
+      // Since this is dynamic, we need to ensure the assets exist.
+      // For the new demo, we might not have the files yet, but let's assume standard path.
       fetch(`/assets/workflows/${demo.id}/code.ts`)
         .then((r) => r.text())
         .then(setCodeContent)
         .catch(console.error);
     }
-  }, [showCode, demo, codeContent]);
+  }, [showCode, demo?.id, codeContent]);
 
   useEffect(() => {
     if (showFlow && demo && !flowContent) {
@@ -107,7 +111,7 @@ export function WorkflowPage() {
         .then(setFlowContent)
         .catch(console.error);
     }
-  }, [showFlow, demo, flowContent]);
+  }, [showFlow, demo?.id, flowContent]);
 
   if (!demo) return <div className="p-8">Workflow not found</div>;
 
@@ -177,16 +181,31 @@ export function WorkflowPage() {
         </div>
       </div>
 
-      <WorkflowTester
-        workflowName={demo.id}
-        actors={demo.actors as any}
-        status={status}
-        events={events}
-        error={error}
-        activeRunId={activeRunId}
-        handleSignal={handleSignal}
-        setRunId={setRunId}
-      />
+      {demo.layout === "chat"
+        ? (
+          <ChatWorkflowTester
+            workflowName={demo.id}
+            actors={demo.actors as any}
+            status={status}
+            events={events}
+            error={error}
+            activeRunId={activeRunId}
+            handleSignal={handleSignal}
+            setRunId={setRunId}
+          />
+        )
+        : (
+          <WorkflowTester
+            workflowName={demo.id}
+            actors={demo.actors as any}
+            status={status}
+            events={events}
+            error={error}
+            activeRunId={activeRunId}
+            handleSignal={handleSignal}
+            setRunId={setRunId}
+          />
+        )}
 
       {/* Code Modal */}
       {showCode && (

@@ -11,3 +11,18 @@
     @apply font-sans antialiased;
   }
 }
+
+@keyframes smooth-blink {
+  0%, 100% {
+    opacity: 1;
+    filter: brightness(1);
+  }
+  50% {
+    opacity: 0.8;
+    filter: brightness(1.2);
+  }
+}
+
+.animate-smooth-blink {
+  animation: smooth-blink 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}

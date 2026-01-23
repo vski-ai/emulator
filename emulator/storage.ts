@@ -60,6 +60,7 @@ export interface MemoryQueueMessage {
   maxAttempts: number;
   notBefore: Date;
   createdAt: Date;
+  updatedAt: Date;
   processedAt?: Date;
 }
 

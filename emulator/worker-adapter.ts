@@ -25,6 +25,7 @@ export function installEmulator() {
     for (const db of dbs) {
       try {
         await service.processWaits(db);
+        await service.cleanupStuckMessages(db);
       } catch (e) {
         console.error(`Error processing waits for ${db}:`, e);
       }

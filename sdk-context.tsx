@@ -102,15 +102,13 @@ export function SdkProvider({
       setClient(newClient);
       setIsReady(true);
 
-      // Start workers for all registered workflows automatically
+      // Start a single worker for all registered workflows automatically
       const workflowNames = Array.from(WorkflowRegistry.keys());
-      console.log(`Starting workers for (${mode}):`, workflowNames);
+      console.log(`Starting worker for (${mode}) workflows:`, workflowNames);
 
-      for (const name of workflowNames) {
-        const w = new WorkflowWorker(newClient);
-        w.start(name, { resume: true });
-        workers.push(w);
-      }
+      const w = new WorkflowWorker(newClient);
+      w.start(workflowNames, { resume: true });
+      workers.push(w);
     };
 
     init();

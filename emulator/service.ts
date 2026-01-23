@@ -201,6 +201,7 @@ export class EmulatorWorkflowService {
       maxAttempts: 3,
       notBefore: new Date(),
       createdAt: new Date(),
+      updatedAt: new Date(),
     };
     storage.queue.push(msg);
     return { messageId: msg.messageId };
@@ -219,6 +220,7 @@ export class EmulatorWorkflowService {
 
     msg.status = "processing";
     msg.attempt += 1;
+    msg.updatedAt = new Date();
 
     return {
       id: msg.messageId,
@@ -233,6 +235,7 @@ export class EmulatorWorkflowService {
     if (msg) {
       msg.status = "completed";
       msg.processedAt = new Date();
+      msg.updatedAt = new Date();
     }
     return { success: true };
   }
@@ -243,8 +246,37 @@ export class EmulatorWorkflowService {
     if (msg) {
       msg.status = "pending";
       msg.notBefore = new Date(Date.now() + 5000);
+      msg.updatedAt = new Date();
     }
     return { success: true };
+  }
+
+  async touch(dbName: string, messageId: string) {
+    const storage = this.getStorage(dbName);
+    const msg = storage.queue.find((m) => m.messageId === messageId);
+    if (msg) {
+      msg.updatedAt = new Date();
+    }
+    return { success: true };
+  }
+
+  async cleanupStuckMessages(dbName: string) {
+    const storage = this.getStorage(dbName);
+    const timeout = 30000;
+    const now = new Date();
+    let count = 0;
+
+    for (const msg of storage.queue) {
+      if (
+        msg.status === "processing" &&
+        now.getTime() - msg.updatedAt.getTime() > timeout
+      ) {
+        msg.status = "pending";
+        msg.notBefore = new Date();
+        count++;
+      }
+    }
+    return count;
   }
 
   async processWaits(dbName: string) {
@@ -275,6 +307,7 @@ export class EmulatorWorkflowService {
         if (run) {
           await this.queue(dbName, `__wkf_workflow_${run.workflowName}`, {
             runId: run.runId,
+            workflowName: run.workflowName,
             input: run.input,
             executionContext: run.executionContext,
           });
