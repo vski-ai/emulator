@@ -57,6 +57,7 @@ export class EmulatorWorkflowService {
       workflowName: data.workflowName,
       input: data.input || [],
       executionContext: data.executionContext || {},
+      executionTimeout: data.executionTimeout || Infinity,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -342,7 +343,7 @@ export class EmulatorWorkflowService {
 
   async cleanupStuckMessages(dbName: string) {
     const storage = this.getStorage(dbName);
-    const timeout = 30000;
+    const timeout = 2000;
     const now = new Date();
     let count = 0;
 

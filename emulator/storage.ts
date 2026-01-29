@@ -9,6 +9,7 @@ export interface MemoryWorkflowRun {
   output?: any;
   error?: any;
   executionContext: any;
+  executionTimeout?: number;
   startedAt?: Date;
   completedAt?: Date;
   createdAt: Date;

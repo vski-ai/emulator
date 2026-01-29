@@ -100,11 +100,12 @@ export class EmulatorWebSocket extends EventTarget {
     const msg = JSON.parse(data);
     if (msg.event === "SUBSCRIBE") {
       EmulatorWebSocket.server.handleSubscribe(this, this.db, msg.data.queue);
+      const workflowName = msg.data.queue.replace("__wkf_workflow_", "");
       setTimeout(() => {
         this.receive(
           JSON.stringify({
             event: "SUBSCRIBED",
-            data: { queue: msg.data.queue },
+            data: { workflowName },
           }),
         );
       }, 10);
