@@ -1,3 +1,4 @@
+> This project now lives at https://git.vski.sh/x/vski-playground
 # VSKI Emulator
 
 - [x] 🌍 [Deployment](https://emulator.vski.ai)
